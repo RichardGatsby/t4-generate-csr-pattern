@@ -14,10 +14,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>GenerateClasses.cs</LastGenOutput>
     </None>
-    <None Update="Readme.txt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Readme.cs</LastGenOutput>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -29,11 +25,6 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>GenerateClasses.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Readme.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Readme.txt</DependentUpon>
     </Compile>
   </ItemGroup>
 
