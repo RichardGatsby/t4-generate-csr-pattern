@@ -1,0 +1,124 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Data" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Xml.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Data" #>
+<#@ import namespace="System.Data.SqlClient" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="System.Text" #>
+
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace GenerateControllerServiceRepo
+{ 
+   <#
+	var connectionString = "";
+	var list = new List<string>();
+
+	if(string.IsNullOrEmpty(connectionString)){
+		// Manually define the list of structures to be created if desired
+		list = new List<string>(){"Product", "Category", "Company"};
+	}else{
+			// Get the list of table names from SQL Server
+		using (var sqlConnection = new SqlConnection(connectionString))
+            {
+                sqlConnection.Open();
+                if (sqlConnection.State == ConnectionState.Open)
+                {
+                    var dt = sqlConnection.GetSchema("Tables");
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        list.Add((string)row[2]);
+                    }
+                }
+            }
+    }
+
+
+
+	// Generate service for each item.
+    foreach (var item in list)
+    { 
+	#>
+	//****GENERATED CONTROLLER, SERVICE AND REPOSITORY <#= "FOR " +item.ToUpper() #>****
+
+	//[ApiController] 
+	public class <#=item#>Controller 
+	//: ControllerBase
+	{
+		private readonly <#=item#>Service _<#= item.ToLower() #>Service;
+
+		public <#=item#>Controller(DbContext context)
+		{
+			_<#=item.ToLower()#>Service = new <#=item#>Service(context);
+		}
+
+		//[HttpGet]
+		//[ProducesResponseType(200, Type = typeof(<#= item #>))]
+		//public async Task<IActionResult> Get()
+		//{
+		//		var result = await _<#= item.ToLower() #>Service.GetAll();
+        //		return Ok(result)
+		//}
+	}
+
+
+
+	public class <#= item+"Service" #>
+	{ 
+		//Add repository injection
+		private readonly <#= item+"Repository"+ " _"+item.ToLower() + "Repository;" #>
+
+		//Add ctor that will accept dbcontext
+		public <#= item+"Service(DbContext context)"#>{
+
+			<#= "_"+item.ToLower()+"Repository = new " +item+  "Repository(context);" #>
+
+		}
+
+		//Example method for retrieving all rows in the entity (uncomment when types available)
+		//public <#=item#> GetAll() {
+		//		return _<#=item.ToLower()#>Repository.GetAll;
+		//}
+
+	} 
+
+	public class <#= item+"Repository" #>
+	{ 
+		//Add repository injection
+		private readonly DbContext _ctx;
+
+		//Add ctor that will accept dbcontext
+		public <#= item+"Repository(DbContext ctx)"#>{
+
+			_ctx = ctx;
+
+		}
+		
+		//Example method for retrieving all rows in the entity (uncomment when types available)
+		//public <#=item#> GetAll() {
+		//		return _ctx.<#=item#>.Where(row => row != null).ToList()
+		//}
+	}
+
+
+
+
+
+ 
+ <# } #>}
+
+
+
+
+
